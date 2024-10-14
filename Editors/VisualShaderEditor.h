@@ -133,7 +133,7 @@ class VisualShaderEditor : public BaseEditor {
   void on_match_image_button_pressed();
 
  private:
-  VisualShader* visual_shader;
+  // VisualShader* visual_shader;
   MessageModel* visual_shader_model;
 
   QHBoxLayout* layout;
@@ -208,6 +208,8 @@ class VisualShaderEditor : public BaseEditor {
    * 
    */
   void init_graph();
+
+  void RebindSubModels() override;
 
   void create_node(const QPointF& coordinate);
 
@@ -370,13 +372,14 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
   Q_OBJECT
 
  public:
-  VisualShaderGraphicsScene(VisualShader* vs, QObject* parent = nullptr);
+  VisualShaderGraphicsScene(QObject* parent = nullptr);
+  // VisualShaderGraphicsScene(VisualShader* vs, QObject* parent = nullptr);
 
   ~VisualShaderGraphicsScene();
 
-  bool add_node(const std::string& type, const QPointF& coordinate);
-  bool add_node(const int& n_id, const std::shared_ptr<VisualShaderNode>& n, const QPointF& coordinate);
-  bool delete_node(const int& n_id);
+  // bool add_node(const std::string& type, const QPointF& coordinate);
+  // bool add_node(const int& n_id, const std::shared_ptr<VisualShaderNode>& n, const QPointF& coordinate);
+  // bool delete_node(const int& n_id);
 
   VisualShaderEditor* get_editor() const { return editor; }
   void set_editor(VisualShaderEditor* editor) const { this->editor = editor; }
@@ -397,13 +400,13 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
      * @return true 
      * @return false 
      */
-  bool add_connection(const int& from_node_id, const int& from_port_index,
-                      const int& to_node_id = (int)VisualShader::NODE_ID_INVALID,
-                      const int& to_port_index = (int)VisualShader::PORT_INDEX_INVALID);
+  // bool add_connection(const int& from_node_id, const int& from_port_index,
+  //                     const int& to_node_id = (int)VisualShader::NODE_ID_INVALID,
+  //                     const int& to_port_index = (int)VisualShader::PORT_INDEX_INVALID);
 
-  bool delete_connection(const int& from_node_id, const int& from_port_index,
-                         const int& to_node_id = (int)VisualShader::NODE_ID_INVALID,
-                         const int& to_port_index = (int)VisualShader::PORT_INDEX_INVALID);
+  // bool delete_connection(const int& from_node_id, const int& from_port_index,
+  //                        const int& to_node_id = (int)VisualShader::NODE_ID_INVALID,
+  //                        const int& to_port_index = (int)VisualShader::PORT_INDEX_INVALID);
 
   VisualShaderNodeGraphicsObject* get_node_graphics_object(const int& n_id) const;
 
@@ -454,7 +457,7 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
   void on_out_port_remove_requested(VisualShaderOutputPortGraphicsObject* out_port);
 
  private:
-  VisualShader* vs;
+  // VisualShader* vs;
   mutable VisualShaderEditor* editor;
 
   std::unordered_map<int, VisualShaderNodeGraphicsObject*> node_graphics_objects;
@@ -554,963 +557,963 @@ class VisualShaderGraphicsView : public QGraphicsView {
   void move_view_to_fit_items();
 };
 
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-/*****                                                            *****/
-/*****               VisualShaderNodeGraphicsObject               *****/
-/*****                                                            *****/
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-
-class VisualShaderNodeGraphicsObject : public QGraphicsObject {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeGraphicsObject(const int& n_id, const QPointF& coordinate,
-                                 const std::shared_ptr<VisualShaderNode>& node, QGraphicsItem* parent = nullptr);
-  ~VisualShaderNodeGraphicsObject();
-
-  VisualShaderInputPortGraphicsObject* get_input_port_graphics_object(const int& p_index) const;
-  VisualShaderOutputPortGraphicsObject* get_output_port_graphics_object(const int& p_index) const;
-
-  QWidget* get_embed_widget() const { return embed_widget; }
-  void set_embed_widget(QWidget* embed_widget) { this->embed_widget = embed_widget; }
-
-  ShaderPreviewerWidget* get_shader_previewer_widget() const { return shader_previewer_widget; }
-
- public Q_SLOTS:
-  void on_node_update_requested();
-
- Q_SIGNALS:
-  /**
-   * @brief Send a request to delete a node.
-   * 
-   * @note EMITTED from @c VisualShaderNodeGraphicsObject::on_delete_node_action_triggered slot.
-   * 
-   * @note Connected in @c VisualShaderGraphicsScene::add_node function to 
-   *       @c VisualShaderGraphicsScene::on_node_deleted slot.
-   * 
-   * @param n_id 
-   */
-  void node_deleted(const int& n_id);
-
-  /**
-   * @brief Notify the scene that a node has been moved.
-   * 
-   * @note EMITTED from @c VisualShaderNodeGraphicsObject::itemChange function.
-   * 
-   * @note Connected to @c VisualShaderGraphicsScene::on_node_moved slot in 
-   *       @c VisualShaderGraphicsScene::VisualShaderGraphicsScene constructor.
-   * 
-   * @param n_id 
-   * @param new_coordinate 
-   */
-  void node_moved(const int& n_id, const QPointF& new_coordinate);
-
-  void in_port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-  void in_port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-  void in_port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-
-  void out_port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-  void out_port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-  void out_port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-
-  void scene_update_requested();
-
-  void in_port_remove_requested(VisualShaderInputPortGraphicsObject* in_port);
-  void out_port_remove_requested(VisualShaderOutputPortGraphicsObject* out_port);
-
- private Q_SLOTS:
-  /**
-   * @brief Called when @c VisualShaderNodeGraphicsObject::delete_node_action is triggered.
-   * 
-   * @note Connected in @c VisualShaderNodeGraphicsObject::VisualShaderNodeGraphicsObject constructor
-   *       to @c QAction::triggered signal.
-   * 
-   * @note EMITS @c VisualShaderNodeGraphicsObject::node_deleted signal.
-   * 
-   */
-  void on_delete_node_action_triggered();
-
-  void on_in_port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT in_port_pressed(port, coordinate);
-  }
-  void on_in_port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT in_port_dragged(port, coordinate);
-  }
-  void on_in_port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT in_port_dropped(port, coordinate);
-  }
-
-  void on_out_port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT out_port_pressed(port, coordinate);
-  }
-  void on_out_port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT out_port_dragged(port, coordinate);
-  }
-  void on_out_port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
-    Q_EMIT out_port_dropped(port, coordinate);
-  }
-
- private:
-  int n_id;
-  QPointF coordinate;
-  std::shared_ptr<VisualShaderNode> node;
-
-  QMenu* context_menu;
-  QAction* delete_node_action;
-
-  std::unordered_map<int, VisualShaderInputPortGraphicsObject*> in_port_graphics_objects;
-  std::unordered_map<int, VisualShaderOutputPortGraphicsObject*> out_port_graphics_objects;
-
-  // Style
-  QColor normal_boundary_color = QColor(220, 20, 60);   // Crimson Red
-  QColor selected_boundary_color = QColor(255, 69, 0);  // Red-Orange
-  QColor font_color = QColor(255, 255, 255);            // Pure White
-  QColor fill_color = QColor(40, 40, 40, 200);          // Semi-transparent Dark Gray
-
-  float pen_width = 1.0f;
-
-  float opacity = 0.8f;
-  float corner_radius = 3.0f;
-  float port_diameter = 8.0f;
-
-  float caption_h_padding = 10.0f;
-  float caption_v_padding = 8.0f;
-
-  mutable float rect_width;           // Calculated in boundingRect()
-  mutable float caption_rect_height;  // Calculated in boundingRect()
-
-  mutable float rect_height;  // Calculated in boundingRect()
-  float body_rect_header_height = 30.0f;
-  float body_rect_port_step = 40.0f;
-  float body_rect_footer_height = 30.0f;
-
-  mutable float rect_padding;  // Calculated in boundingRect()
-  mutable float rect_margin;   // Calculated in boundingRect()
-
-  float port_caption_spacing = 4.0f;  // Distance between the port and its caption
-
-  // Ports Style
-  float connected_port_diameter = 8.0f;
-  float unconnected_port_diameter = 6.0f;
-
-  // Caption
-  float caption_font_size = 18.0f;
-  float port_caption_font_size = 8.0f;
-
-  QWidget* embed_widget;
-  float embed_widget_h_padding = 15.0f;
-  float embed_widget_v_padding = 5.0f;
-
-  OriginalMatchingImageWidget* matching_image_widget;
-  float spacing_between_output_node_and_matching_image = 10.0f;
-
-  ShaderPreviewerWidget* shader_previewer_widget;
-  float spacing_between_current_node_and_shader_previewer = 10.0f;
-
-  QRectF boundingRect() const override;
-
-  /**
-   * @brief 
-   * 
-   * @note This function contains some commented code that is meant to be used
-   *       for debugging purposes.
-   * 
-   * @param painter 
-   * @param option 
-   * @param widget 
-   */
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
-  QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
-};
-
-class VisualShaderInputPortGraphicsObject : public QGraphicsObject {
-  Q_OBJECT
-
- public:
-  VisualShaderInputPortGraphicsObject(const QRectF& rect, const int& n_id, const int& p_index,
-                                      QGraphicsItem* parent = nullptr);
-  ~VisualShaderInputPortGraphicsObject();
-
-  QPointF get_global_coordinate() const { return mapToScene(rect.center()); }
-
-  int get_node_id() const { return n_id; }
-  int get_port_index() const { return p_index; }
-
-  VisualShaderConnectionGraphicsObject* get_connection_graphics_object() const { return connection_graphics_object; }
-  void connect(VisualShaderConnectionGraphicsObject* c_g_o) const { this->connection_graphics_object = c_g_o; }
-  void detach_connection() const { this->connection_graphics_object = nullptr; }
-  bool is_connected() const { return connection_graphics_object != nullptr; }
-
- Q_SIGNALS:
-  /**
-   * @brief Called when the an interaction with the port is made.
-   * 
-   * @note Connected in @c VisualShaderNodeGraphicsObject::paint function to
-   *       @c VisualShaderGraphicsScene::on_port_* slots.
-   * 
-   * @param port 
-   * @param coordinate 
-   */
-  void port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-  void port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-  void port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
-
- private:
-  int n_id;
-  int p_index;
-  QRectF rect;
-
-  mutable VisualShaderConnectionGraphicsObject* connection_graphics_object;
-
-  float padding = 0.5f;
-
-  // Style
-  QColor font_color = QColor(255, 255, 255);
-  QColor connection_point_color = QColor(220, 20, 60);  // Crimson
-
-  float opacity = 1.0f;
-
-  QRectF boundingRect() const override;
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-  void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
-};
-
-class VisualShaderOutputPortGraphicsObject : public QGraphicsObject {
-  Q_OBJECT
-
- public:
-  VisualShaderOutputPortGraphicsObject(const QRectF& rect, const int& n_id, const int& p_index,
-                                       QGraphicsItem* parent = nullptr);
-  ~VisualShaderOutputPortGraphicsObject();
-
-  QPointF get_global_coordinate() const { return mapToScene(rect.center()); }
-
-  int get_node_id() const { return n_id; }
-  int get_port_index() const { return p_index; }
-
-  std::vector<VisualShaderConnectionGraphicsObject*> get_connection_graphics_objects() const {
-    return connection_graphics_objects;
-  }
-  VisualShaderConnectionGraphicsObject* get_connection_graphics_object(const int& to_node_id,
-                                                                       const int& to_port_index) const;
-  void connect(VisualShaderConnectionGraphicsObject* c_o) { this->connection_graphics_objects.emplace_back(c_o); }
-  void detach_connection(VisualShaderConnectionGraphicsObject* c_o) {
-    connection_graphics_objects.erase(
-        std::remove(connection_graphics_objects.begin(), connection_graphics_objects.end(), c_o),
-        connection_graphics_objects.end());
-  }
-  bool is_connected() const { return connection_graphics_objects.size() > 0; }
-
- Q_SIGNALS:
-  /**
-   * @brief Called when the an interaction with the port is made.
-   * 
-   * @note Connected in @c VisualShaderNodeGraphicsObject::paint function to
-   *       @c VisualShaderGraphicsScene::on_port_* slots.
-   * 
-   * @param port 
-   * @param coordinate 
-   */
-  void port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-  void port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-  void port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
-
- private:
-  int n_id;
-  int p_index;
-  QRectF rect;
-
-  // An output port can have multiple connections.
-  std::vector<VisualShaderConnectionGraphicsObject*> connection_graphics_objects;
-
-  float padding = 0.5f;
-
-  // Style
-  QColor font_color = QColor(255, 255, 255);
-  QColor connection_point_color = QColor(220, 20, 60);  // Crimson
-
-  float opacity = 1.0f;
-
-  QRectF boundingRect() const override;
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-  void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
-};
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-/*****                                                            *****/
-/*****           VisualShaderConnectionGraphicsObject             *****/
-/*****                                                            *****/
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-
-class VisualShaderConnectionGraphicsObject : public QGraphicsObject {
-  Q_OBJECT
-
- public:
-  VisualShaderConnectionGraphicsObject(const int& from_n_id, const int& from_p_index, const QPointF& start_coordinate,
-                                       QGraphicsItem* parent = nullptr);
-  ~VisualShaderConnectionGraphicsObject();
-
-  int get_from_node_id() const { return from_n_id; }
-  int get_from_port_index() const { return from_p_index; }
-
-  int get_to_node_id() const { return to_n_id; }
-  int get_to_port_index() const { return to_p_index; }
-
-  void detach_end() const {
-    this->set_to_node_id((int)VisualShader::NODE_ID_INVALID);
-    this->set_to_port_index((int)VisualShader::PORT_INDEX_INVALID);
-  }
-
-  void set_to_node_id(const int& to_n_id) const { this->to_n_id = to_n_id; }
-  void set_to_port_index(const int& to_p_index) const { this->to_p_index = to_p_index; }
-
-  void set_start_coordinate(const QPointF& start_coordinate) {
-    this->start_coordinate = start_coordinate;
-    update();
-  }
-  void set_end_coordinate(const QPointF& end_coordinate) {
-    this->end_coordinate = end_coordinate;
-    update();
-  }
-
- private:
-  int from_n_id;
-  mutable int to_n_id;
-  int from_p_index;
-  mutable int to_p_index;
-
-  QPointF start_coordinate;
-  QPointF end_coordinate;
-
-  // Style
-  QColor construction_color = QColor(139, 0, 0);  // Dark Red
-  QColor normal_color = QColor(178, 34, 34);      // Firebrick Red
-  QColor selected_color = QColor(55, 55, 55);     // Dark Gray
-  QColor connection_point_color = QColor(211, 211, 211);
-
-  float line_width = 3.0f;
-  float construction_line_width = 2.0f;
-  float point_diameter = 10.0f;
-
-  mutable float rect_padding;  // Calculated in boundingRect()
-
-  float h_abnormal_offset = 50.0f;
-  float v_abnormal_offset = 40.0f;
-  float abnormal_face_to_back_control_width_expansion_factor = 0.5f;
-  float abnormal_face_to_back_control_height_expansion_factor = 1.0f;
-
-  QRectF boundingRect() const override;
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
-
-  int detect_quadrant(const QPointF& reference, const QPointF& target) const;
-  QRectF calculate_bounding_rect_from_coordinates(const QPointF& start_coordinate, const QPointF& end_coordinate) const;
-  std::pair<QPointF, QPointF> calculate_control_points(const QPointF& start_coordinate,
-                                                       const QPointF& end_coordinate) const;
-};
-
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-/*****                                                            *****/
-/*****                 Embed Widgets                              *****/
-/*****                                                            *****/
-/**********************************************************************/
-/**********************************************************************/
-/**********************************************************************/
-
-class VisualShaderNodeEmbedWidget : public QWidget {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeEmbedWidget(const std::shared_ptr<VisualShaderNode>& node, QWidget* parent = nullptr);
-  ~VisualShaderNodeEmbedWidget();
-
-  void set_shader_previewer_widget(QWidget* shader_previewer_widget) {
-    this->shader_previewer_widget = shader_previewer_widget;
-  }
-
- Q_SIGNALS:
-  void shader_preview_update_requested();
-  void node_update_requested();
-
- private Q_SLOTS:
-  void on_preview_shader_button_pressed() {
-    bool is_visible{shader_previewer_widget->isVisible()};
-    shader_previewer_widget->setVisible(!is_visible);
-    preview_shader_button->setText(!is_visible ? "Hide Preview" : "Show Preview");
-  }
-
-  void on_shader_preview_update_requested() { Q_EMIT shader_preview_update_requested(); }
-
-  void on_node_update_requested() { Q_EMIT node_update_requested(); }
-
- private:
-  QVBoxLayout* layout;
-
-  QPushButton* preview_shader_button;
-
-  QWidget* shader_previewer_widget;
-};
-
-/*************************************/
-/* Input Node                        */
-/*************************************/
-
-class VisualShaderNodeInputEmbedWidget : public QComboBox {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeInputEmbedWidget(const std::shared_ptr<VisualShaderNodeInput>& node);
-  ~VisualShaderNodeInputEmbedWidget();
-
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
-
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
-
- private:
-  std::shared_ptr<VisualShaderNodeInput> node;
-};
-
-/*************************************/
-/* Float Op Node                     */
-/*************************************/
-
-class VisualShaderNodeFloatOpEmbedWidget : public QComboBox {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeFloatOpEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatOp>& node);
-  ~VisualShaderNodeFloatOpEmbedWidget();
-
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
-
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
-
- private:
-  std::shared_ptr<VisualShaderNodeFloatOp> node;
-};
-
-/*************************************/
-/* Int Op Node                       */
-/*************************************/
-
-class VisualShaderNodeIntOpEmbedWidget : public QComboBox {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeIntOpEmbedWidget(const std::shared_ptr<VisualShaderNodeIntOp>& node);
-  ~VisualShaderNodeIntOpEmbedWidget();
-
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
-
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
-
- private:
-  std::shared_ptr<VisualShaderNodeIntOp> node;
-};
-
-/*************************************/
-/* UInt Op Node                      */
-/*************************************/
-
-class VisualShaderNodeUIntOpEmbedWidget : public QComboBox {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeUIntOpEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntOp>& node);
-  ~VisualShaderNodeUIntOpEmbedWidget();
-
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
-
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
-
- private:
-  std::shared_ptr<VisualShaderNodeUIntOp> node;
-};
-
-/*************************************/
-/* Float Funcs Node                  */
-/*************************************/
-
-class VisualShaderNodeFloatFuncEmbedWidget : public QComboBox {
-  Q_OBJECT
-
- public:
-  VisualShaderNodeFloatFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatFunc>& node);
-  ~VisualShaderNodeFloatFuncEmbedWidget();
-
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+// /*****                                                            *****/
+// /*****               VisualShaderNodeGraphicsObject               *****/
+// /*****                                                            *****/
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+
+// class VisualShaderNodeGraphicsObject : public QGraphicsObject {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeGraphicsObject(const int& n_id, const QPointF& coordinate,
+//                                  const std::shared_ptr<VisualShaderNode>& node, QGraphicsItem* parent = nullptr);
+//   ~VisualShaderNodeGraphicsObject();
+
+//   VisualShaderInputPortGraphicsObject* get_input_port_graphics_object(const int& p_index) const;
+//   VisualShaderOutputPortGraphicsObject* get_output_port_graphics_object(const int& p_index) const;
+
+//   QWidget* get_embed_widget() const { return embed_widget; }
+//   void set_embed_widget(QWidget* embed_widget) { this->embed_widget = embed_widget; }
+
+//   ShaderPreviewerWidget* get_shader_previewer_widget() const { return shader_previewer_widget; }
+
+//  public Q_SLOTS:
+//   void on_node_update_requested();
+
+//  Q_SIGNALS:
+//   /**
+//    * @brief Send a request to delete a node.
+//    * 
+//    * @note EMITTED from @c VisualShaderNodeGraphicsObject::on_delete_node_action_triggered slot.
+//    * 
+//    * @note Connected in @c VisualShaderGraphicsScene::add_node function to 
+//    *       @c VisualShaderGraphicsScene::on_node_deleted slot.
+//    * 
+//    * @param n_id 
+//    */
+//   void node_deleted(const int& n_id);
+
+//   /**
+//    * @brief Notify the scene that a node has been moved.
+//    * 
+//    * @note EMITTED from @c VisualShaderNodeGraphicsObject::itemChange function.
+//    * 
+//    * @note Connected to @c VisualShaderGraphicsScene::on_node_moved slot in 
+//    *       @c VisualShaderGraphicsScene::VisualShaderGraphicsScene constructor.
+//    * 
+//    * @param n_id 
+//    * @param new_coordinate 
+//    */
+//   void node_moved(const int& n_id, const QPointF& new_coordinate);
+
+//   void in_port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+//   void in_port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+//   void in_port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+
+//   void out_port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+//   void out_port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+//   void out_port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+
+//   void scene_update_requested();
+
+//   void in_port_remove_requested(VisualShaderInputPortGraphicsObject* in_port);
+//   void out_port_remove_requested(VisualShaderOutputPortGraphicsObject* out_port);
+
+//  private Q_SLOTS:
+//   /**
+//    * @brief Called when @c VisualShaderNodeGraphicsObject::delete_node_action is triggered.
+//    * 
+//    * @note Connected in @c VisualShaderNodeGraphicsObject::VisualShaderNodeGraphicsObject constructor
+//    *       to @c QAction::triggered signal.
+//    * 
+//    * @note EMITS @c VisualShaderNodeGraphicsObject::node_deleted signal.
+//    * 
+//    */
+//   void on_delete_node_action_triggered();
+
+//   void on_in_port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT in_port_pressed(port, coordinate);
+//   }
+//   void on_in_port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT in_port_dragged(port, coordinate);
+//   }
+//   void on_in_port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT in_port_dropped(port, coordinate);
+//   }
+
+//   void on_out_port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT out_port_pressed(port, coordinate);
+//   }
+//   void on_out_port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT out_port_dragged(port, coordinate);
+//   }
+//   void on_out_port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate) {
+//     Q_EMIT out_port_dropped(port, coordinate);
+//   }
+
+//  private:
+//   int n_id;
+//   QPointF coordinate;
+//   std::shared_ptr<VisualShaderNode> node;
+
+//   QMenu* context_menu;
+//   QAction* delete_node_action;
+
+//   std::unordered_map<int, VisualShaderInputPortGraphicsObject*> in_port_graphics_objects;
+//   std::unordered_map<int, VisualShaderOutputPortGraphicsObject*> out_port_graphics_objects;
+
+//   // Style
+//   QColor normal_boundary_color = QColor(220, 20, 60);   // Crimson Red
+//   QColor selected_boundary_color = QColor(255, 69, 0);  // Red-Orange
+//   QColor font_color = QColor(255, 255, 255);            // Pure White
+//   QColor fill_color = QColor(40, 40, 40, 200);          // Semi-transparent Dark Gray
+
+//   float pen_width = 1.0f;
+
+//   float opacity = 0.8f;
+//   float corner_radius = 3.0f;
+//   float port_diameter = 8.0f;
+
+//   float caption_h_padding = 10.0f;
+//   float caption_v_padding = 8.0f;
+
+//   mutable float rect_width;           // Calculated in boundingRect()
+//   mutable float caption_rect_height;  // Calculated in boundingRect()
+
+//   mutable float rect_height;  // Calculated in boundingRect()
+//   float body_rect_header_height = 30.0f;
+//   float body_rect_port_step = 40.0f;
+//   float body_rect_footer_height = 30.0f;
+
+//   mutable float rect_padding;  // Calculated in boundingRect()
+//   mutable float rect_margin;   // Calculated in boundingRect()
+
+//   float port_caption_spacing = 4.0f;  // Distance between the port and its caption
+
+//   // Ports Style
+//   float connected_port_diameter = 8.0f;
+//   float unconnected_port_diameter = 6.0f;
+
+//   // Caption
+//   float caption_font_size = 18.0f;
+//   float port_caption_font_size = 8.0f;
+
+//   QWidget* embed_widget;
+//   float embed_widget_h_padding = 15.0f;
+//   float embed_widget_v_padding = 5.0f;
+
+//   OriginalMatchingImageWidget* matching_image_widget;
+//   float spacing_between_output_node_and_matching_image = 10.0f;
+
+//   ShaderPreviewerWidget* shader_previewer_widget;
+//   float spacing_between_current_node_and_shader_previewer = 10.0f;
+
+//   QRectF boundingRect() const override;
+
+//   /**
+//    * @brief 
+//    * 
+//    * @note This function contains some commented code that is meant to be used
+//    *       for debugging purposes.
+//    * 
+//    * @param painter 
+//    * @param option 
+//    * @param widget 
+//    */
+//   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
+//   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+//   void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
+// };
+
+// class VisualShaderInputPortGraphicsObject : public QGraphicsObject {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderInputPortGraphicsObject(const QRectF& rect, const int& n_id, const int& p_index,
+//                                       QGraphicsItem* parent = nullptr);
+//   ~VisualShaderInputPortGraphicsObject();
+
+//   QPointF get_global_coordinate() const { return mapToScene(rect.center()); }
+
+//   int get_node_id() const { return n_id; }
+//   int get_port_index() const { return p_index; }
+
+//   VisualShaderConnectionGraphicsObject* get_connection_graphics_object() const { return connection_graphics_object; }
+//   void connect(VisualShaderConnectionGraphicsObject* c_g_o) const { this->connection_graphics_object = c_g_o; }
+//   void detach_connection() const { this->connection_graphics_object = nullptr; }
+//   bool is_connected() const { return connection_graphics_object != nullptr; }
+
+//  Q_SIGNALS:
+//   /**
+//    * @brief Called when the an interaction with the port is made.
+//    * 
+//    * @note Connected in @c VisualShaderNodeGraphicsObject::paint function to
+//    *       @c VisualShaderGraphicsScene::on_port_* slots.
+//    * 
+//    * @param port 
+//    * @param coordinate 
+//    */
+//   void port_pressed(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+//   void port_dragged(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+//   void port_dropped(VisualShaderInputPortGraphicsObject* port, const QPointF& coordinate);
+
+//  private:
+//   int n_id;
+//   int p_index;
+//   QRectF rect;
+
+//   mutable VisualShaderConnectionGraphicsObject* connection_graphics_object;
+
+//   float padding = 0.5f;
+
+//   // Style
+//   QColor font_color = QColor(255, 255, 255);
+//   QColor connection_point_color = QColor(220, 20, 60);  // Crimson
+
+//   float opacity = 1.0f;
+
+//   QRectF boundingRect() const override;
+//   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+//   void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+//   void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+//   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+// };
+
+// class VisualShaderOutputPortGraphicsObject : public QGraphicsObject {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderOutputPortGraphicsObject(const QRectF& rect, const int& n_id, const int& p_index,
+//                                        QGraphicsItem* parent = nullptr);
+//   ~VisualShaderOutputPortGraphicsObject();
+
+//   QPointF get_global_coordinate() const { return mapToScene(rect.center()); }
+
+//   int get_node_id() const { return n_id; }
+//   int get_port_index() const { return p_index; }
+
+//   std::vector<VisualShaderConnectionGraphicsObject*> get_connection_graphics_objects() const {
+//     return connection_graphics_objects;
+//   }
+//   VisualShaderConnectionGraphicsObject* get_connection_graphics_object(const int& to_node_id,
+//                                                                        const int& to_port_index) const;
+//   void connect(VisualShaderConnectionGraphicsObject* c_o) { this->connection_graphics_objects.emplace_back(c_o); }
+//   void detach_connection(VisualShaderConnectionGraphicsObject* c_o) {
+//     connection_graphics_objects.erase(
+//         std::remove(connection_graphics_objects.begin(), connection_graphics_objects.end(), c_o),
+//         connection_graphics_objects.end());
+//   }
+//   bool is_connected() const { return connection_graphics_objects.size() > 0; }
+
+//  Q_SIGNALS:
+//   /**
+//    * @brief Called when the an interaction with the port is made.
+//    * 
+//    * @note Connected in @c VisualShaderNodeGraphicsObject::paint function to
+//    *       @c VisualShaderGraphicsScene::on_port_* slots.
+//    * 
+//    * @param port 
+//    * @param coordinate 
+//    */
+//   void port_pressed(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+//   void port_dragged(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+//   void port_dropped(VisualShaderOutputPortGraphicsObject* port, const QPointF& coordinate);
+
+//  private:
+//   int n_id;
+//   int p_index;
+//   QRectF rect;
+
+//   // An output port can have multiple connections.
+//   std::vector<VisualShaderConnectionGraphicsObject*> connection_graphics_objects;
+
+//   float padding = 0.5f;
+
+//   // Style
+//   QColor font_color = QColor(255, 255, 255);
+//   QColor connection_point_color = QColor(220, 20, 60);  // Crimson
+
+//   float opacity = 1.0f;
+
+//   QRectF boundingRect() const override;
+//   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+//   void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+//   void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+//   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+// };
+
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+// /*****                                                            *****/
+// /*****           VisualShaderConnectionGraphicsObject             *****/
+// /*****                                                            *****/
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+
+// class VisualShaderConnectionGraphicsObject : public QGraphicsObject {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderConnectionGraphicsObject(const int& from_n_id, const int& from_p_index, const QPointF& start_coordinate,
+//                                        QGraphicsItem* parent = nullptr);
+//   ~VisualShaderConnectionGraphicsObject();
+
+//   int get_from_node_id() const { return from_n_id; }
+//   int get_from_port_index() const { return from_p_index; }
+
+//   int get_to_node_id() const { return to_n_id; }
+//   int get_to_port_index() const { return to_p_index; }
+
+//   void detach_end() const {
+//     this->set_to_node_id((int)VisualShader::NODE_ID_INVALID);
+//     this->set_to_port_index((int)VisualShader::PORT_INDEX_INVALID);
+//   }
+
+//   void set_to_node_id(const int& to_n_id) const { this->to_n_id = to_n_id; }
+//   void set_to_port_index(const int& to_p_index) const { this->to_p_index = to_p_index; }
+
+//   void set_start_coordinate(const QPointF& start_coordinate) {
+//     this->start_coordinate = start_coordinate;
+//     update();
+//   }
+//   void set_end_coordinate(const QPointF& end_coordinate) {
+//     this->end_coordinate = end_coordinate;
+//     update();
+//   }
+
+//  private:
+//   int from_n_id;
+//   mutable int to_n_id;
+//   int from_p_index;
+//   mutable int to_p_index;
+
+//   QPointF start_coordinate;
+//   QPointF end_coordinate;
+
+//   // Style
+//   QColor construction_color = QColor(139, 0, 0);  // Dark Red
+//   QColor normal_color = QColor(178, 34, 34);      // Firebrick Red
+//   QColor selected_color = QColor(55, 55, 55);     // Dark Gray
+//   QColor connection_point_color = QColor(211, 211, 211);
+
+//   float line_width = 3.0f;
+//   float construction_line_width = 2.0f;
+//   float point_diameter = 10.0f;
+
+//   mutable float rect_padding;  // Calculated in boundingRect()
+
+//   float h_abnormal_offset = 50.0f;
+//   float v_abnormal_offset = 40.0f;
+//   float abnormal_face_to_back_control_width_expansion_factor = 0.5f;
+//   float abnormal_face_to_back_control_height_expansion_factor = 1.0f;
+
+//   QRectF boundingRect() const override;
+//   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
+
+//   int detect_quadrant(const QPointF& reference, const QPointF& target) const;
+//   QRectF calculate_bounding_rect_from_coordinates(const QPointF& start_coordinate, const QPointF& end_coordinate) const;
+//   std::pair<QPointF, QPointF> calculate_control_points(const QPointF& start_coordinate,
+//                                                        const QPointF& end_coordinate) const;
+// };
+
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+// /*****                                                            *****/
+// /*****                 Embed Widgets                              *****/
+// /*****                                                            *****/
+// /**********************************************************************/
+// /**********************************************************************/
+// /**********************************************************************/
+
+// class VisualShaderNodeEmbedWidget : public QWidget {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeEmbedWidget(const std::shared_ptr<VisualShaderNode>& node, QWidget* parent = nullptr);
+//   ~VisualShaderNodeEmbedWidget();
+
+//   void set_shader_previewer_widget(QWidget* shader_previewer_widget) {
+//     this->shader_previewer_widget = shader_previewer_widget;
+//   }
+
+//  Q_SIGNALS:
+//   void shader_preview_update_requested();
+//   void node_update_requested();
+
+//  private Q_SLOTS:
+//   void on_preview_shader_button_pressed() {
+//     bool is_visible{shader_previewer_widget->isVisible()};
+//     shader_previewer_widget->setVisible(!is_visible);
+//     preview_shader_button->setText(!is_visible ? "Hide Preview" : "Show Preview");
+//   }
+
+//   void on_shader_preview_update_requested() { Q_EMIT shader_preview_update_requested(); }
+
+//   void on_node_update_requested() { Q_EMIT node_update_requested(); }
+
+//  private:
+//   QVBoxLayout* layout;
+
+//   QPushButton* preview_shader_button;
+
+//   QWidget* shader_previewer_widget;
+// };
+
+// /*************************************/
+// /* Input Node                        */
+// /*************************************/
+
+// class VisualShaderNodeInputEmbedWidget : public QComboBox {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeInputEmbedWidget(const std::shared_ptr<VisualShaderNodeInput>& node);
+//   ~VisualShaderNodeInputEmbedWidget();
+
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
+
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
+
+//  private:
+//   std::shared_ptr<VisualShaderNodeInput> node;
+// };
+
+// /*************************************/
+// /* Float Op Node                     */
+// /*************************************/
+
+// class VisualShaderNodeFloatOpEmbedWidget : public QComboBox {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeFloatOpEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatOp>& node);
+//   ~VisualShaderNodeFloatOpEmbedWidget();
+
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
+
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
+
+//  private:
+//   std::shared_ptr<VisualShaderNodeFloatOp> node;
+// };
+
+// /*************************************/
+// /* Int Op Node                       */
+// /*************************************/
+
+// class VisualShaderNodeIntOpEmbedWidget : public QComboBox {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeIntOpEmbedWidget(const std::shared_ptr<VisualShaderNodeIntOp>& node);
+//   ~VisualShaderNodeIntOpEmbedWidget();
+
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
+
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
+
+//  private:
+//   std::shared_ptr<VisualShaderNodeIntOp> node;
+// };
+
+// /*************************************/
+// /* UInt Op Node                      */
+// /*************************************/
+
+// class VisualShaderNodeUIntOpEmbedWidget : public QComboBox {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeUIntOpEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntOp>& node);
+//   ~VisualShaderNodeUIntOpEmbedWidget();
+
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
+
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
+
+//  private:
+//   std::shared_ptr<VisualShaderNodeUIntOp> node;
+// };
+
+// /*************************************/
+// /* Float Funcs Node                  */
+// /*************************************/
+
+// class VisualShaderNodeFloatFuncEmbedWidget : public QComboBox {
+//   Q_OBJECT
+
+//  public:
+//   VisualShaderNodeFloatFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatFunc>& node);
+//   ~VisualShaderNodeFloatFuncEmbedWidget();
+
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeFloatFunc> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeFloatFunc> node;
+// };
 
-/*************************************/
-/* Int Funcs Node                    */
-/*************************************/
+// /*************************************/
+// /* Int Funcs Node                    */
+// /*************************************/
 
-class VisualShaderNodeIntFuncEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeIntFuncEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeIntFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeIntFunc>& node);
-  ~VisualShaderNodeIntFuncEmbedWidget();
+//  public:
+//   VisualShaderNodeIntFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeIntFunc>& node);
+//   ~VisualShaderNodeIntFuncEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeIntFunc> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeIntFunc> node;
+// };
 
-/*************************************/
-/* UInt Funcs Node                   */
-/*************************************/
+// /*************************************/
+// /* UInt Funcs Node                   */
+// /*************************************/
 
-class VisualShaderNodeUIntFuncEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeUIntFuncEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeUIntFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntFunc>& node);
-  ~VisualShaderNodeUIntFuncEmbedWidget();
+//  public:
+//   VisualShaderNodeUIntFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntFunc>& node);
+//   ~VisualShaderNodeUIntFuncEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeUIntFunc> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeUIntFunc> node;
+// };
 
-/*************************************/
-/* Vector Base                       */
-/*************************************/
+// /*************************************/
+// /* Vector Base                       */
+// /*************************************/
 
-class VisualShaderNodeVectorBaseEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeVectorBaseEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVectorBaseEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorBase>& node);
-  ~VisualShaderNodeVectorBaseEmbedWidget();
+//  public:
+//   VisualShaderNodeVectorBaseEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorBase>& node);
+//   ~VisualShaderNodeVectorBaseEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeVectorBase> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeVectorBase> node;
+// };
 
-/*************************************/
-/* Vector Op Node                    */
-/*************************************/
+// /*************************************/
+// /* Vector Op Node                    */
+// /*************************************/
 
-class VisualShaderNodeVectorOpEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeVectorOpEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVectorOpEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorOp>& node);
-  ~VisualShaderNodeVectorOpEmbedWidget();
+//  public:
+//   VisualShaderNodeVectorOpEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorOp>& node);
+//   ~VisualShaderNodeVectorOpEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeVectorOp> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeVectorOp> node;
+// };
 
-/*************************************/
-/* Vector Funcs Node                 */
-/*************************************/
+// /*************************************/
+// /* Vector Funcs Node                 */
+// /*************************************/
 
-class VisualShaderNodeVectorFuncEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeVectorFuncEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVectorFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorFunc>& node);
-  ~VisualShaderNodeVectorFuncEmbedWidget();
+//  public:
+//   VisualShaderNodeVectorFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeVectorFunc>& node);
+//   ~VisualShaderNodeVectorFuncEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeVectorFunc> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeVectorFunc> node;
+// };
 
-/*************************************/
-/* Color Constant Node               */
-/*************************************/
+// /*************************************/
+// /* Color Constant Node               */
+// /*************************************/
 
-class VisualShaderNodeColorConstantEmbedWidget : public QPushButton {
-  Q_OBJECT
+// class VisualShaderNodeColorConstantEmbedWidget : public QPushButton {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeColorConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeColorConstant>& node);
-  ~VisualShaderNodeColorConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeColorConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeColorConstant>& node);
+//   ~VisualShaderNodeColorConstantEmbedWidget();
 
- Q_SIGNALS:
-  void color_changed();
+//  Q_SIGNALS:
+//   void color_changed();
 
- private Q_SLOTS:
-  void on_pressed();
+//  private Q_SLOTS:
+//   void on_pressed();
 
- private:
-  std::shared_ptr<VisualShaderNodeColorConstant> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeColorConstant> node;
+// };
 
-/*************************************/
-/* Boolean Constant Node             */
-/*************************************/
+// /*************************************/
+// /* Boolean Constant Node             */
+// /*************************************/
 
-class VisualShaderNodeBooleanConstantEmbedWidget : public QCheckBox {
-  Q_OBJECT
+// class VisualShaderNodeBooleanConstantEmbedWidget : public QCheckBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeBooleanConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeBooleanConstant>& node);
-  ~VisualShaderNodeBooleanConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeBooleanConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeBooleanConstant>& node);
+//   ~VisualShaderNodeBooleanConstantEmbedWidget();
 
- private Q_SLOTS:
-  void on_state_changed(const int& state);
+//  private Q_SLOTS:
+//   void on_state_changed(const int& state);
 
- private:
-  std::shared_ptr<VisualShaderNodeBooleanConstant> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeBooleanConstant> node;
+// };
 
-/*************************************/
-/* Float Constant                    */
-/*************************************/
+// /*************************************/
+// /* Float Constant                    */
+// /*************************************/
 
-class VisualShaderNodeFloatConstantEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeFloatConstantEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeFloatConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatConstant>& node);
-  ~VisualShaderNodeFloatConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeFloatConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeFloatConstant>& node);
+//   ~VisualShaderNodeFloatConstantEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeFloatConstant> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeFloatConstant> node;
+// };
 
-/*************************************/
-/* Int Constant                      */
-/*************************************/
+// /*************************************/
+// /* Int Constant                      */
+// /*************************************/
 
-class VisualShaderNodeIntConstantEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeIntConstantEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeIntConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeIntConstant>& node);
-  ~VisualShaderNodeIntConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeIntConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeIntConstant>& node);
+//   ~VisualShaderNodeIntConstantEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeIntConstant> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeIntConstant> node;
+// };
 
-/*************************************/
-/* UInt Constant                     */
-/*************************************/
+// /*************************************/
+// /* UInt Constant                     */
+// /*************************************/
 
-class VisualShaderNodeUIntConstantEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeUIntConstantEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeUIntConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntConstant>& node);
-  ~VisualShaderNodeUIntConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeUIntConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeUIntConstant>& node);
+//   ~VisualShaderNodeUIntConstantEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeUIntConstant> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeUIntConstant> node;
+// };
 
-/*************************************/
-/* Vec2 Constant Node                */
-/*************************************/
+// /*************************************/
+// /* Vec2 Constant Node                */
+// /*************************************/
 
-class VisualShaderNodeVec2ConstantEmbedWidget : public QVBoxLayout {
-  Q_OBJECT
+// class VisualShaderNodeVec2ConstantEmbedWidget : public QVBoxLayout {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVec2ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec2Constant>& node);
-  ~VisualShaderNodeVec2ConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeVec2ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec2Constant>& node);
+//   ~VisualShaderNodeVec2ConstantEmbedWidget();
 
-  QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
-  QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
+//   QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
+//   QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
 
- private Q_SLOTS:
+//  private Q_SLOTS:
 
-  void on_x_text_changed(const QString& text);
-  void on_y_text_changed(const QString& text);
+//   void on_x_text_changed(const QString& text);
+//   void on_y_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeVec2Constant> node;
+//  private:
+//   std::shared_ptr<VisualShaderNodeVec2Constant> node;
 
-  QLineEdit* x_edit_widget;
-  QLineEdit* y_edit_widget;
-};
+//   QLineEdit* x_edit_widget;
+//   QLineEdit* y_edit_widget;
+// };
 
-/*************************************/
-/* Vec3 Constant Node                */
-/*************************************/
+// /*************************************/
+// /* Vec3 Constant Node                */
+// /*************************************/
 
-class VisualShaderNodeVec3ConstantEmbedWidget : public QVBoxLayout {
-  Q_OBJECT
+// class VisualShaderNodeVec3ConstantEmbedWidget : public QVBoxLayout {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVec3ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec3Constant>& node);
-  ~VisualShaderNodeVec3ConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeVec3ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec3Constant>& node);
+//   ~VisualShaderNodeVec3ConstantEmbedWidget();
 
-  QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
-  QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
-  QLineEdit* get_z_edit_widget() const { return z_edit_widget; }
+//   QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
+//   QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
+//   QLineEdit* get_z_edit_widget() const { return z_edit_widget; }
 
- private Q_SLOTS:
+//  private Q_SLOTS:
 
-  void on_x_text_changed(const QString& text);
-  void on_y_text_changed(const QString& text);
-  void on_z_text_changed(const QString& text);
+//   void on_x_text_changed(const QString& text);
+//   void on_y_text_changed(const QString& text);
+//   void on_z_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeVec3Constant> node;
+//  private:
+//   std::shared_ptr<VisualShaderNodeVec3Constant> node;
 
-  QLineEdit* x_edit_widget;
-  QLineEdit* y_edit_widget;
-  QLineEdit* z_edit_widget;
-};
+//   QLineEdit* x_edit_widget;
+//   QLineEdit* y_edit_widget;
+//   QLineEdit* z_edit_widget;
+// };
 
-/*************************************/
-/* Vec4 Constant Node                */
-/*************************************/
+// /*************************************/
+// /* Vec4 Constant Node                */
+// /*************************************/
 
-class VisualShaderNodeVec4ConstantEmbedWidget : public QVBoxLayout {
-  Q_OBJECT
+// class VisualShaderNodeVec4ConstantEmbedWidget : public QVBoxLayout {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVec4ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec4Constant>& node);
-  ~VisualShaderNodeVec4ConstantEmbedWidget();
+//  public:
+//   VisualShaderNodeVec4ConstantEmbedWidget(const std::shared_ptr<VisualShaderNodeVec4Constant>& node);
+//   ~VisualShaderNodeVec4ConstantEmbedWidget();
 
-  QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
-  QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
-  QLineEdit* get_z_edit_widget() const { return z_edit_widget; }
-  QLineEdit* get_w_edit_widget() const { return w_edit_widget; }
+//   QLineEdit* get_x_edit_widget() const { return x_edit_widget; }
+//   QLineEdit* get_y_edit_widget() const { return y_edit_widget; }
+//   QLineEdit* get_z_edit_widget() const { return z_edit_widget; }
+//   QLineEdit* get_w_edit_widget() const { return w_edit_widget; }
 
- private Q_SLOTS:
+//  private Q_SLOTS:
 
-  void on_x_text_changed(const QString& text);
-  void on_y_text_changed(const QString& text);
-  void on_z_text_changed(const QString& text);
-  void on_w_text_changed(const QString& text);
+//   void on_x_text_changed(const QString& text);
+//   void on_y_text_changed(const QString& text);
+//   void on_z_text_changed(const QString& text);
+//   void on_w_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeVec4Constant> node;
+//  private:
+//   std::shared_ptr<VisualShaderNodeVec4Constant> node;
 
-  QLineEdit* x_edit_widget;
-  QLineEdit* y_edit_widget;
-  QLineEdit* z_edit_widget;
-  QLineEdit* w_edit_widget;
-};
+//   QLineEdit* x_edit_widget;
+//   QLineEdit* y_edit_widget;
+//   QLineEdit* z_edit_widget;
+//   QLineEdit* w_edit_widget;
+// };
 
-/*************************************/
-/* Derivative Func Node              */
-/*************************************/
+// /*************************************/
+// /* Derivative Func Node              */
+// /*************************************/
 
-class VisualShaderNodeDerivativeFuncEmbedWidget : public QVBoxLayout {
-  Q_OBJECT
+// class VisualShaderNodeDerivativeFuncEmbedWidget : public QVBoxLayout {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeDerivativeFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeDerivativeFunc>& node);
-  ~VisualShaderNodeDerivativeFuncEmbedWidget();
+//  public:
+//   VisualShaderNodeDerivativeFuncEmbedWidget(const std::shared_ptr<VisualShaderNodeDerivativeFunc>& node);
+//   ~VisualShaderNodeDerivativeFuncEmbedWidget();
 
-  QComboBox* get_op_type_combo_box() const { return op_type_combo_box; }
-  QComboBox* get_function_combo_box() const { return function_combo_box; }
-  QComboBox* get_precision_combo_box() const { return precision_combo_box; }
+//   QComboBox* get_op_type_combo_box() const { return op_type_combo_box; }
+//   QComboBox* get_function_combo_box() const { return function_combo_box; }
+//   QComboBox* get_precision_combo_box() const { return precision_combo_box; }
 
- private Q_SLOTS:
-  void on_op_type_current_index_changed(const int& index);
-  void on_function_current_index_changed(const int& index);
-  void on_precision_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_op_type_current_index_changed(const int& index);
+//   void on_function_current_index_changed(const int& index);
+//   void on_precision_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeDerivativeFunc> node;
+//  private:
+//   std::shared_ptr<VisualShaderNodeDerivativeFunc> node;
 
-  QComboBox* op_type_combo_box;
-  QComboBox* function_combo_box;
-  QComboBox* precision_combo_box;
-};
+//   QComboBox* op_type_combo_box;
+//   QComboBox* function_combo_box;
+//   QComboBox* precision_combo_box;
+// };
 
-/*************************************/
-/* Value Noise Node                  */
-/*************************************/
+// /*************************************/
+// /* Value Noise Node                  */
+// /*************************************/
 
-class VisualShaderNodeValueNoiseEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeValueNoiseEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeValueNoiseEmbedWidget(const std::shared_ptr<VisualShaderNodeValueNoise>& node);
-  ~VisualShaderNodeValueNoiseEmbedWidget();
+//  public:
+//   VisualShaderNodeValueNoiseEmbedWidget(const std::shared_ptr<VisualShaderNodeValueNoise>& node);
+//   ~VisualShaderNodeValueNoiseEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeValueNoise> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeValueNoise> node;
+// };
 
-/*************************************/
-/* Perlin Noise Node                 */
-/*************************************/
+// /*************************************/
+// /* Perlin Noise Node                 */
+// /*************************************/
 
-class VisualShaderNodePerlinNoiseEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodePerlinNoiseEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodePerlinNoiseEmbedWidget(const std::shared_ptr<VisualShaderNodePerlinNoise>& node);
-  ~VisualShaderNodePerlinNoiseEmbedWidget();
+//  public:
+//   VisualShaderNodePerlinNoiseEmbedWidget(const std::shared_ptr<VisualShaderNodePerlinNoise>& node);
+//   ~VisualShaderNodePerlinNoiseEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodePerlinNoise> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodePerlinNoise> node;
+// };
 
-/*************************************/
-/* Voronoi Noise Node                */
-/*************************************/
+// /*************************************/
+// /* Voronoi Noise Node                */
+// /*************************************/
 
-class VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget(const std::shared_ptr<VisualShaderNodeVoronoiNoise>& node);
-  ~VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget();
+//  public:
+//   VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget(const std::shared_ptr<VisualShaderNodeVoronoiNoise>& node);
+//   ~VisualShaderNodeVoronoiNoiseAngleOffsetEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeVoronoiNoise> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeVoronoiNoise> node;
+// };
 
-class VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget : public QLineEdit {
-  Q_OBJECT
+// class VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget : public QLineEdit {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget(const std::shared_ptr<VisualShaderNodeVoronoiNoise>& node);
-  ~VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget();
+//  public:
+//   VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget(const std::shared_ptr<VisualShaderNodeVoronoiNoise>& node);
+//   ~VisualShaderNodeVoronoiNoiseCellDensityEmbedWidget();
 
- private Q_SLOTS:
-  void on_text_changed(const QString& text);
+//  private Q_SLOTS:
+//   void on_text_changed(const QString& text);
 
- private:
-  std::shared_ptr<VisualShaderNodeVoronoiNoise> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeVoronoiNoise> node;
+// };
 
-/*************************************/
-/* Logic                             */
-/*************************************/
+// /*************************************/
+// /* Logic                             */
+// /*************************************/
 
-/*************************************/
-/* Compare Node                      */
-/*************************************/
+// /*************************************/
+// /* Compare Node                      */
+// /*************************************/
 
-class VisualShaderNodeCompareEmbedWidget : public QVBoxLayout {
-  Q_OBJECT
+// class VisualShaderNodeCompareEmbedWidget : public QVBoxLayout {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeCompareEmbedWidget(const std::shared_ptr<VisualShaderNodeCompare>& node);
-  ~VisualShaderNodeCompareEmbedWidget();
+//  public:
+//   VisualShaderNodeCompareEmbedWidget(const std::shared_ptr<VisualShaderNodeCompare>& node);
+//   ~VisualShaderNodeCompareEmbedWidget();
 
-  QComboBox* get_comparison_type_combo_box() const { return comparison_type_combo_box; }
-  QComboBox* get_func_combo_box() const { return func_combo_box; }
-  QComboBox* get_condition_combo_box() const { return condition_combo_box; }
+//   QComboBox* get_comparison_type_combo_box() const { return comparison_type_combo_box; }
+//   QComboBox* get_func_combo_box() const { return func_combo_box; }
+//   QComboBox* get_condition_combo_box() const { return condition_combo_box; }
 
- private Q_SLOTS:
-  void on_comparison_type_current_index_changed(const int& index);
-  void on_func_current_index_changed(const int& index);
-  void on_condition_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_comparison_type_current_index_changed(const int& index);
+//   void on_func_current_index_changed(const int& index);
+//   void on_condition_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeCompare> node;
+//  private:
+//   std::shared_ptr<VisualShaderNodeCompare> node;
 
-  QComboBox* comparison_type_combo_box;
-  QComboBox* func_combo_box;
-  QComboBox* condition_combo_box;
-};
+//   QComboBox* comparison_type_combo_box;
+//   QComboBox* func_combo_box;
+//   QComboBox* condition_combo_box;
+// };
 
-/*************************************/
-/* Switch Node                       */
-/*************************************/
+// /*************************************/
+// /* Switch Node                       */
+// /*************************************/
 
-class VisualShaderNodeSwitchEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeSwitchEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeSwitchEmbedWidget(const std::shared_ptr<VisualShaderNodeSwitch>& node);
-  ~VisualShaderNodeSwitchEmbedWidget();
+//  public:
+//   VisualShaderNodeSwitchEmbedWidget(const std::shared_ptr<VisualShaderNodeSwitch>& node);
+//   ~VisualShaderNodeSwitchEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeSwitch> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeSwitch> node;
+// };
 
-/*************************************/
-/* Is Node                           */
-/*************************************/
+// /*************************************/
+// /* Is Node                           */
+// /*************************************/
 
-class VisualShaderNodeIsEmbedWidget : public QComboBox {
-  Q_OBJECT
+// class VisualShaderNodeIsEmbedWidget : public QComboBox {
+//   Q_OBJECT
 
- public:
-  VisualShaderNodeIsEmbedWidget(const std::shared_ptr<VisualShaderNodeIs>& node);
-  ~VisualShaderNodeIsEmbedWidget();
+//  public:
+//   VisualShaderNodeIsEmbedWidget(const std::shared_ptr<VisualShaderNodeIs>& node);
+//   ~VisualShaderNodeIsEmbedWidget();
 
-  void set_current_index(const int& index) { this->setCurrentIndex(index); }
+//   void set_current_index(const int& index) { this->setCurrentIndex(index); }
 
- private Q_SLOTS:
-  void on_current_index_changed(const int& index);
+//  private Q_SLOTS:
+//   void on_current_index_changed(const int& index);
 
- private:
-  std::shared_ptr<VisualShaderNodeIs> node;
-};
+//  private:
+//   std::shared_ptr<VisualShaderNodeIs> node;
+// };
 
 #endif  // ENIGMA_VISUAL_SHADER_EDITOR_H

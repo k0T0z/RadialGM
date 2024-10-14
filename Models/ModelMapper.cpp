@@ -4,7 +4,7 @@
 
 ModelMapper::ModelMapper(MessageModel *model, BaseEditor *parent) : QObject(parent), _model(model) {
   _mapper = new ImmediateDataWidgetMapper(this);
-  _mapper->setOrientation(Qt::Vertical);
+  _mapper->setOrientation(Qt::Vertical); // https://doc.qt.io/qt-5/qdatawidgetmapper.html#orientation-prop
   _mapper->setModel(model);
   parent->connect(model, &ProtoModel::DataChanged, parent, &BaseEditor::dataChanged);
 }
