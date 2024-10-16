@@ -59,9 +59,10 @@
 #include <vector>
 
 #include "Editors/BaseEditor.h"
-#include "ResourceTransformations/VisualShader/visual_shader.h"
-#include "ResourceTransformations/VisualShader/visual_shader_nodes.h"
-#include "ResourceTransformations/VisualShader/vs_noise_nodes.h"
+#include "Models/RepeatedMessageModel.h"
+// #include "ResourceTransformations/VisualShader/visual_shader.h"
+// #include "ResourceTransformations/VisualShader/visual_shader_nodes.h"
+// #include "ResourceTransformations/VisualShader/vs_noise_nodes.h"
 
 class VisualShaderGraphicsScene;
 class VisualShaderGraphicsView;
@@ -134,7 +135,6 @@ class VisualShaderEditor : public BaseEditor {
 
  private:
   // VisualShader* visual_shader;
-  MessageModel* visual_shader_model;
 
   QHBoxLayout* layout;
 
@@ -192,6 +192,11 @@ class VisualShaderEditor : public BaseEditor {
   static const VisualShaderEditor::CreateNodeDialogNodesTreeItem create_node_dialog_nodes_tree_items[];
 
   CreateNodeDialog* create_node_dialog;
+
+  // MODELS
+  MessageModel* visual_shader_model;
+  RepeatedMessageModel* nodes_model;
+  RepeatedMessageModel* connections_model;
 
   /**
    * @brief Initializes the UI

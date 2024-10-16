@@ -26,6 +26,7 @@ using Room = buffers::resources::Room;
 using Sound = buffers::resources::Sound;
 using Sprite = buffers::resources::Sprite;
 using Timeline = buffers::resources::Timeline;
+using VisualShader = buffers::resources::VisualShader;
 
 class ProtoModel;
 class MessageModel;

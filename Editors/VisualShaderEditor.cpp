@@ -29,7 +29,7 @@
 
 #include <unordered_map>
 
-#include "VisualShader.pb.h"
+using VisualShaderNodeFloatConstant = buffers::resources::VisualShaderNodeFloatConstant;
 
 /**********************************************************************/
 /**********************************************************************/
@@ -68,7 +68,10 @@ VisualShaderEditor::VisualShaderEditor(QWidget* parent)
       create_node_dialog(nullptr),
       code_previewer_dialog(nullptr),
       code_previewer_layout(nullptr),
-      code_previewer(nullptr) {
+      code_previewer(nullptr),
+      visual_shader_model(nullptr),
+      nodes_model(nullptr),
+      connections_model(nullptr) {
   VisualShaderEditor::init();
 }
 
@@ -99,13 +102,20 @@ VisualShaderEditor::VisualShaderEditor(MessageModel* model, QWidget* parent)
       create_node_dialog(nullptr),
       code_previewer_dialog(nullptr),
       code_previewer_layout(nullptr),
-      code_previewer(nullptr) {
+      code_previewer(nullptr),
+      visual_shader_model(nullptr),
+      nodes_model(nullptr),
+      connections_model(nullptr) {
   VisualShaderEditor::init();
 
   _nodeMapper->addMapping(name_edit, TreeNode::kNameFieldNumber);
 
   QObject::connect(save_button, &QAbstractButton::pressed, this, &BaseEditor::OnSave);
   
+  
+  visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
+
+
   visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
 
   VisualShaderEditor::RebindSubModels();
@@ -396,7 +406,14 @@ void VisualShaderEditor::init_graph() {
 }
 
 void VisualShaderEditor::RebindSubModels() {
-  
+  visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
+  connect(visual_shader_model, &ProtoModel::DataChanged, this, [this]() { 
+    std::cout << "VisualShaderEditor::RebindSubModels() -> visual_shader_model->DataChanged" << std::endl;
+  });
+
+  nodes_model = visual_shader_model->GetSubModel<RepeatedMessageModel*>(VisualShader::kNodesFieldNumber);
+
+  connections_model = visual_shader_model->GetSubModel<RepeatedMessageModel*>(VisualShader::kConnectionsFieldNumber);
 
   BaseEditor::RebindSubModels();
 }
@@ -479,6 +496,14 @@ void VisualShaderEditor::create_node(const QPointF& coordinate) {
 }
 
 void VisualShaderEditor::add_node(QTreeWidgetItem* selected_item, const QPointF& coordinate) {
+  nodes_model->insertRow(0);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::kIdFieldNumber), 0);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode::VisualShaderCoordinate>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::VisualShaderCoordinate::kXFieldNumber), coordinate.x());
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode::VisualShaderCoordinate>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::VisualShaderCoordinate::kYFieldNumber), coordinate.y());
+  nodes_model->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(FieldPath::StartingAt(0), VisualShaderNodeFloatConstant::kValueFieldNumber), 0.0f);
+
+  std::cout << "Added node" << std::endl;
+
 //   std::string type{selected_item->data(0, Qt::UserRole).toString().toStdString()};
 
 //   if (type.empty()) {
