@@ -386,6 +386,9 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
   // bool add_node(const int& n_id, const std::shared_ptr<VisualShaderNode>& n, const QPointF& coordinate);
   // bool delete_node(const int& n_id);
 
+  void set_nodes_model(RepeatedMessageModel* nodes_model) { this->nodes_model = nodes_model; }
+  void set_connections_model(RepeatedMessageModel* connections_model) { this->connections_model = connections_model; }
+
   VisualShaderEditor* get_editor() const { return editor; }
   void set_editor(VisualShaderEditor* editor) const { this->editor = editor; }
 
@@ -468,6 +471,9 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
   std::unordered_map<int, VisualShaderNodeGraphicsObject*> node_graphics_objects;
 
   VisualShaderConnectionGraphicsObject* temporary_connection_graphics_object;
+
+  RepeatedMessageModel* nodes_model;
+  RepeatedMessageModel* connections_model;
 
   void remove_item(QGraphicsItem* item);
 };

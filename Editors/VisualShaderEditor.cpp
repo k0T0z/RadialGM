@@ -29,8 +29,6 @@
 
 #include <unordered_map>
 
-using VisualShaderNodeFloatConstant = buffers::resources::VisualShaderNodeFloatConstant;
-
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -111,12 +109,6 @@ VisualShaderEditor::VisualShaderEditor(MessageModel* model, QWidget* parent)
   _nodeMapper->addMapping(name_edit, TreeNode::kNameFieldNumber);
 
   QObject::connect(save_button, &QAbstractButton::pressed, this, &BaseEditor::OnSave);
-  
-  
-  visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
-
-
-  visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
 
   VisualShaderEditor::RebindSubModels();
 }
@@ -407,13 +399,12 @@ void VisualShaderEditor::init_graph() {
 
 void VisualShaderEditor::RebindSubModels() {
   visual_shader_model = _model->GetSubModel<MessageModel*>(TreeNode::kVisualShaderFieldNumber);
-  connect(visual_shader_model, &ProtoModel::DataChanged, this, [this]() { 
-    std::cout << "VisualShaderEditor::RebindSubModels() -> visual_shader_model->DataChanged" << std::endl;
-  });
 
   nodes_model = visual_shader_model->GetSubModel<RepeatedMessageModel*>(VisualShader::kNodesFieldNumber);
+  scene->set_nodes_model(nodes_model);
 
   connections_model = visual_shader_model->GetSubModel<RepeatedMessageModel*>(VisualShader::kConnectionsFieldNumber);
+  scene->set_connections_model(connections_model);
 
   BaseEditor::RebindSubModels();
 }
@@ -496,13 +487,41 @@ void VisualShaderEditor::create_node(const QPointF& coordinate) {
 }
 
 void VisualShaderEditor::add_node(QTreeWidgetItem* selected_item, const QPointF& coordinate) {
-  nodes_model->insertRow(0);
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::kIdFieldNumber), 0);
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode::VisualShaderCoordinate>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::VisualShaderCoordinate::kXFieldNumber), coordinate.x());
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode::VisualShaderCoordinate>(FieldPath::StartingAt(0), VisualShader::VisualShaderNode::VisualShaderCoordinate::kYFieldNumber), coordinate.y());
-  nodes_model->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(FieldPath::StartingAt(0), VisualShaderNodeFloatConstant::kValueFieldNumber), 0.0f);
+  std::cout << "Coordinate: " << coordinate.x() << ", " << coordinate.y() << std::endl;
 
-  std::cout << "Added node" << std::endl;
+  int index = 0;
+
+  nodes_model->insertRow(index);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber), 3);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber), coordinate.x());
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber), coordinate.y());
+  
+  // Get the node type model
+  
+
+  QVariant v = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber));
+
+  if (v.isValid()) {
+    std::cout << "Added node 1: " << v.toInt() << std::endl;
+  } else {
+    std::cout << "Added node 1: Invalid" << std::endl;
+  }
+  
+  QVariant v2 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber));
+  
+  if (v2.isValid()) {
+    std::cout << "Added node 2: " << v2.toDouble() << std::endl;
+  } else {
+    std::cout << "Added node 2: Invalid" << std::endl;
+  }
+
+  QVariant v3 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber));
+  
+  if (v3.isValid()) {
+    std::cout << "Added node 3: " << v3.toDouble() << std::endl;
+  } else {
+    std::cout << "Added node 3: Invalid" << std::endl;
+  }
 
 //   std::string type{selected_item->data(0, Qt::UserRole).toString().toStdString()};
 
@@ -934,7 +953,7 @@ void ShaderPreviewerWidget::hideEvent(QHideEvent* event) {
 // }
 
 VisualShaderGraphicsScene::VisualShaderGraphicsScene(QObject* parent)
-    : QGraphicsScene(parent), temporary_connection_graphics_object(nullptr) {
+    : QGraphicsScene(parent), temporary_connection_graphics_object(nullptr), nodes_model(nullptr), connections_model(nullptr) {
   setItemIndexMethod(QGraphicsScene::NoIndex);  // https://doc.qt.io/qt-6/qgraphicsscene.html#ItemIndexMethod-enum
 }
 
