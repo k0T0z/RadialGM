@@ -323,6 +323,7 @@ ServerPlugin::ServerPlugin(MainWindow& mainWindow) : RGMPlugin(mainWindow) {
   process->start(emakeFileInfo.filePath(), arguments);
 
   // TODO: This blocks the main thread, we should probably move this to a separate thread.
+  // Check https://doc.qt.io/qt-5/qprocess.html#synchronous-process-api
   if (!process->waitForStarted(-1)) {
     qDebug() << "Failed to start the emake server!" << Qt::endl;
     qDebug() << process->errorString() << Qt::endl;

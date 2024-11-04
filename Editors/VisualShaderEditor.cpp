@@ -29,6 +29,8 @@
 
 #include <unordered_map>
 
+using VisualShaderNodeFloatConstant = buffers::resources::VisualShaderNodeFloatConstant;
+
 /**********************************************************************/
 /**********************************************************************/
 /**********************************************************************/
@@ -487,41 +489,69 @@ void VisualShaderEditor::create_node(const QPointF& coordinate) {
 }
 
 void VisualShaderEditor::add_node(QTreeWidgetItem* selected_item, const QPointF& coordinate) {
-  std::cout << "Coordinate: " << coordinate.x() << ", " << coordinate.y() << std::endl;
-
   int index = 0;
 
   nodes_model->insertRow(index);
   nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber), 3);
   nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber), coordinate.x());
   nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber), coordinate.y());
-  
+
+  const google::protobuf::FieldDescriptor* m = nodes_model->GetRowDescriptor(0);
+
+  std::cout << "Field name: " << m->name() << std::endl;
+  std::cout << "Field debug string: " << m->DebugString() << std::endl;
+
+
+
   // Get the node type model
-  
+  // MessageModel* node_model = nodes_model->GetSubModel(index)->TryCastAsMessageModel();
 
-  QVariant v = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber));
+  // MessageModel* test = new MessageModel(node_model, vs_node_message->mutable_float_constant());
+  
+  // int node_type_case = node_model->OneOfType("node_type");
+  
+  // if ((VisualShader::VisualShaderNode::NodeTypeCase)node_type_case == VisualShader::VisualShaderNode::NODE_TYPE_NOT_SET || node_type_case == -1) {
+  //   std::cout << "Node type not set" << std::endl;
+  // }
 
-  if (v.isValid()) {
-    std::cout << "Added node 1: " << v.toInt() << std::endl;
-  } else {
-    std::cout << "Added node 1: Invalid" << std::endl;
-  }
-  
-  QVariant v2 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber));
-  
-  if (v2.isValid()) {
-    std::cout << "Added node 2: " << v2.toDouble() << std::endl;
-  } else {
-    std::cout << "Added node 2: Invalid" << std::endl;
-  }
+  // MessageModel* node_type_model = node_model->GetSubModel<MessageModel*>(VisualShader::VisualShaderNode::kFloatConstantFieldNumber);
 
-  QVariant v3 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber));
+  // if (!node_type_model) {
+  //   std::cout << "Node type model not found" << std::endl;
+  // }
+
+  // // Set the value
+  // bool result = node_type_model->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber), 8.5);
+
+  // if (!result) {
+  //   std::cout << "Failed to set value" << std::endl;
+  // }
+
+  // // Retrieve the data
+
+  // QVariant v = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber));
+
+  // if (v.isValid()) {
+  //   std::cout << "Added node 1: " << v.toInt() << std::endl;
+  // } else {
+  //   std::cout << "Added node 1: Invalid" << std::endl;
+  // }
   
-  if (v3.isValid()) {
-    std::cout << "Added node 3: " << v3.toDouble() << std::endl;
-  } else {
-    std::cout << "Added node 3: Invalid" << std::endl;
-  }
+  // QVariant v2 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber));
+  
+  // if (v2.isValid()) {
+  //   std::cout << "Added node 2: " << v2.toDouble() << std::endl;
+  // } else {
+  //   std::cout << "Added node 2: Invalid" << std::endl;
+  // }
+
+  // QVariant v3 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber));
+  
+  // if (v3.isValid()) {
+  //   std::cout << "Added node 3: " << v3.toDouble() << std::endl;
+  // } else {
+  //   std::cout << "Added node 3: Invalid" << std::endl;
+  // }
 
 //   std::string type{selected_item->data(0, Qt::UserRole).toString().toStdString()};
 

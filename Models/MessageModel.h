@@ -49,7 +49,9 @@ class MessageModel : public ProtoModel {
   int OneOfType(const std::string& name) const {
     const OneofDescriptor* o = GetDescriptor()->FindOneofByName(name);
     R_EXPECT(o && _protobuf, -1) << "Failed to get oneof index";
-    return _protobuf->GetReflection()->GetOneofFieldDescriptor(*_protobuf, o)->number();
+    const FieldDescriptor* fd = _protobuf->GetReflection()->GetOneofFieldDescriptor(*_protobuf, o);
+    R_EXPECT(fd, -1) << "The oneof " << name.c_str() << " is not set";
+    return fd->number();
   }
 
   // Translates a row number from this model into the underlying Protocol Buffer tag (field number).

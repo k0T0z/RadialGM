@@ -194,8 +194,53 @@ class VisualShaderEditor : public BaseEditor {
   CreateNodeDialog* create_node_dialog;
 
   // MODELS
+
+  /*
+                              ╭─────────────────────────┬────────────────────────┬─────────╮
+    id                    ->  │     0                   │    1                   │   ...   │
+                              ├─────────────────────────┼────────────────────────┼─────────┤
+    nodes                 ->  │    nodes_model0         │   nodes_model1         │   ...   │
+                              ├─────────────────────────┼────────────────────────┼─────────┤
+    connections           ->  │    connections_model0   │   connections_model1   │   ...   │
+                              ├─────────────────────────┼────────────────────────┼─────────┤
+    fragment_shader_code  ->  │    void main() {        │   void main() {        │   ...   │
+                              │      // Code            │     // Code            │         │
+                              │    }                    │   }                    │         │
+                              ╰─────────────────────────┴────────────────────────┴─────────╯
+
+    Note: This is why mostly we store our graph at index 0 however, if we want to create multiple
+          graphs, we can store them at different indexes.
+  */
   MessageModel* visual_shader_model;
+
+  /*
+                      ╭────────────────────┬───────────────────┬─────────╮
+    id            ->  │      0             │        1          │   ...   │
+                      ├────────────────────┼───────────────────┼─────────┤
+    x_coordinate  ->  │     397.6          │       278.1       │   ...   │
+                      ├────────────────────┼───────────────────┼─────────┤
+    y_coordinate  ->  │     115.0          │       -17.0       │   ...   │
+                      ├────────────────────┼───────────────────┼─────────┤
+    node_type     ->  │   float_constant   │    int_constant   │   ...   │
+                      ╰────────────────────┴───────────────────┴─────────╯
+
+    Note: `node_type` is a oneof field. It can be specified as `float_constant`, `int_constant`, etc.
+  */
   RepeatedMessageModel* nodes_model;
+
+  /*
+                        ╭─────┬─────┬───────╮
+    id              ->  │  0  │  1  │  ...  │
+                        ├─────┼─────┼───────┤
+    from_node_id    ->  │  0  │  1  │  ...  │
+                        ├─────┼─────┼───────┤
+    from_port_index ->  │  0  │  0  │  ...  │
+                        ├─────┼─────┼───────┤
+    to_node_id      ->  │  1  │  2  │  ...  │
+                        ├─────┼─────┼───────┤
+    to_port_index   ->  │  0  │  0  │  ...  │
+                        ╰─────┴─────┴───────╯
+  */
   RepeatedMessageModel* connections_model;
 
   /**
