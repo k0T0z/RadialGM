@@ -195,6 +195,12 @@ class VisualShaderEditor : public BaseEditor {
 
   // MODELS
 
+  /* NOTE: If you are wondering why I used a column based model below, check the orientation
+           of the model in ModelMapper(MessageModel *_model, BaseEditor *parent) constructor
+           in Models/ModelMapper.h 
+    
+     TODO: Maybe we should use a row based model instead of a column based model. */
+
   /*
                               ╭─────────────────────────┬────────────────────────┬─────────╮
     id                    ->  │     0                   │    1                   │   ...   │
@@ -427,8 +433,8 @@ class VisualShaderGraphicsScene : public QGraphicsScene {
 
   ~VisualShaderGraphicsScene();
 
-  // bool add_node(const std::string& type, const QPointF& coordinate);
-  // bool add_node(const int& n_id, const std::shared_ptr<VisualShaderNode>& n, const QPointF& coordinate);
+  bool add_node(const std::string& type, const QPointF& coordinate);
+  bool add_node(const int& n_id, const QPointF& coordinate);
   // bool delete_node(const int& n_id);
 
   void set_nodes_model(RepeatedMessageModel* nodes_model) { this->nodes_model = nodes_model; }

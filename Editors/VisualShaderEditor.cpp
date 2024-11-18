@@ -489,77 +489,13 @@ void VisualShaderEditor::create_node(const QPointF& coordinate) {
 }
 
 void VisualShaderEditor::add_node(QTreeWidgetItem* selected_item, const QPointF& coordinate) {
-  int index = 0;
+  std::string type{selected_item->data(0, Qt::UserRole).toString().toStdString()};
 
-  nodes_model->insertRow(index);
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber), 3);
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber), coordinate.x());
-  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber), coordinate.y());
+  if (type.empty()) {
+    return;
+  }
 
-  const google::protobuf::FieldDescriptor* m = nodes_model->GetRowDescriptor(0);
-
-  std::cout << "Field name: " << m->name() << std::endl;
-  std::cout << "Field debug string: " << m->DebugString() << std::endl;
-
-
-
-  // Get the node type model
-  // MessageModel* node_model = nodes_model->GetSubModel(index)->TryCastAsMessageModel();
-
-  // MessageModel* test = new MessageModel(node_model, vs_node_message->mutable_float_constant());
-  
-  // int node_type_case = node_model->OneOfType("node_type");
-  
-  // if ((VisualShader::VisualShaderNode::NodeTypeCase)node_type_case == VisualShader::VisualShaderNode::NODE_TYPE_NOT_SET || node_type_case == -1) {
-  //   std::cout << "Node type not set" << std::endl;
-  // }
-
-  // MessageModel* node_type_model = node_model->GetSubModel<MessageModel*>(VisualShader::VisualShaderNode::kFloatConstantFieldNumber);
-
-  // if (!node_type_model) {
-  //   std::cout << "Node type model not found" << std::endl;
-  // }
-
-  // // Set the value
-  // bool result = node_type_model->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber), 8.5);
-
-  // if (!result) {
-  //   std::cout << "Failed to set value" << std::endl;
-  // }
-
-  // // Retrieve the data
-
-  // QVariant v = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kIdFieldNumber));
-
-  // if (v.isValid()) {
-  //   std::cout << "Added node 1: " << v.toInt() << std::endl;
-  // } else {
-  //   std::cout << "Added node 1: Invalid" << std::endl;
-  // }
-  
-  // QVariant v2 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kXCoordinateFieldNumber));
-  
-  // if (v2.isValid()) {
-  //   std::cout << "Added node 2: " << v2.toDouble() << std::endl;
-  // } else {
-  //   std::cout << "Added node 2: Invalid" << std::endl;
-  // }
-
-  // QVariant v3 = nodes_model->Data(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(index), VisualShader::VisualShaderNode::kYCoordinateFieldNumber));
-  
-  // if (v3.isValid()) {
-  //   std::cout << "Added node 3: " << v3.toDouble() << std::endl;
-  // } else {
-  //   std::cout << "Added node 3: Invalid" << std::endl;
-  // }
-
-//   std::string type{selected_item->data(0, Qt::UserRole).toString().toStdString()};
-
-//   if (type.empty()) {
-//     return;
-//   }
-
-//   scene->add_node(type, coordinate);
+  scene->add_node(type, coordinate);
 }
 
 void VisualShaderEditor::show_create_node_dialog(const QPointF& coordinate) {
@@ -989,171 +925,239 @@ VisualShaderGraphicsScene::VisualShaderGraphicsScene(QObject* parent)
 
 VisualShaderGraphicsScene::~VisualShaderGraphicsScene() {}
 
-// bool VisualShaderGraphicsScene::add_node(const std::string& type, const QPointF& coordinate) {
-//   // Instantiate the node based on the type
-//   std::shared_ptr<VisualShaderNode> n;
+bool VisualShaderGraphicsScene::add_node(const std::string& type, const QPointF& coordinate) {
+  // Instantiate the node based on the type
+  // std::shared_ptr<VisualShaderNode> n;
 
-//   if (type == "VisualShaderNodeInput") {
-//     n = std::make_shared<VisualShaderNodeInput>();
-//   } else if (type == "VisualShaderNodeColorConstant") {
-//     n = std::make_shared<VisualShaderNodeColorConstant>();
-//   } else if (type == "VisualShaderNodeBooleanConstant") {
-//     n = std::make_shared<VisualShaderNodeBooleanConstant>();
-//   } else if (type == "VisualShaderNodeFloatConstant") {
-//     n = std::make_shared<VisualShaderNodeFloatConstant>();
-//   } else if (type == "VisualShaderNodeIntConstant") {
-//     n = std::make_shared<VisualShaderNodeIntConstant>();
-//   } else if (type == "VisualShaderNodeUIntConstant") {
-//     n = std::make_shared<VisualShaderNodeUIntConstant>();
-//   } else if (type == "VisualShaderNodeVec2Constant") {
-//     n = std::make_shared<VisualShaderNodeVec2Constant>();
-//   } else if (type == "VisualShaderNodeVec3Constant") {
-//     n = std::make_shared<VisualShaderNodeVec3Constant>();
-//   } else if (type == "VisualShaderNodeVec4Constant") {
-//     n = std::make_shared<VisualShaderNodeVec4Constant>();
-//   } else if (type == "VisualShaderNodeFloatFunc") {
-//     n = std::make_shared<VisualShaderNodeFloatFunc>();
-//   } else if (type == "VisualShaderNodeIntFunc") {
-//     n = std::make_shared<VisualShaderNodeIntFunc>();
-//   } else if (type == "VisualShaderNodeUIntFunc") {
-//     n = std::make_shared<VisualShaderNodeUIntFunc>();
-//   } else if (type == "VisualShaderNodeDerivativeFunc") {
-//     n = std::make_shared<VisualShaderNodeDerivativeFunc>();
-//   } else if (type == "VisualShaderNodeFloatOp") {
-//     n = std::make_shared<VisualShaderNodeFloatOp>();
-//   } else if (type == "VisualShaderNodeIntOp") {
-//     n = std::make_shared<VisualShaderNodeIntOp>();
-//   } else if (type == "VisualShaderNodeUIntOp") {
-//     n = std::make_shared<VisualShaderNodeUIntOp>();
-//   } else if (type == "VisualShaderNodeValueNoise") {
-//     n = std::make_shared<VisualShaderNodeValueNoise>();
-//   } else if (type == "VisualShaderNodePerlinNoise") {
-//     n = std::make_shared<VisualShaderNodePerlinNoise>();
-//   } else if (type == "VisualShaderNodeVoronoiNoise") {
-//     n = std::make_shared<VisualShaderNodeVoronoiNoise>();
-//   } else if (type == "VisualShaderNodeVectorFunc") {
-//     n = std::make_shared<VisualShaderNodeVectorFunc>();
-//   } else if (type == "VisualShaderNodeVectorOp") {
-//     n = std::make_shared<VisualShaderNodeVectorOp>();
-//   } else if (type == "VisualShaderNodeVectorCompose") {
-//     n = std::make_shared<VisualShaderNodeVectorCompose>();
-//   } else if (type == "VisualShaderNodeVectorDecompose") {
-//     n = std::make_shared<VisualShaderNodeVectorDecompose>();
-//   } else if (type == "VisualShaderNodeCompare") {
-//     n = std::make_shared<VisualShaderNodeCompare>();
-//   } else if (type == "VisualShaderNodeIf") {
-//     n = std::make_shared<VisualShaderNodeIf>();
-//   } else if (type == "VisualShaderNodeIs") {
-//     n = std::make_shared<VisualShaderNodeIs>();
-//   } else if (type == "VisualShaderNodeSwitch") {
-//     n = std::make_shared<VisualShaderNodeSwitch>();
-//   } else if (type == "VisualShaderNodeStep") {
-//     n = std::make_shared<VisualShaderNodeStep>();
-//   } else if (type == "VisualShaderNodeSmoothStep") {
-//     n = std::make_shared<VisualShaderNodeSmoothStep>();
-//   } else if (type == "VisualShaderNodeDotProduct") {
-//     n = std::make_shared<VisualShaderNodeDotProduct>();
-//   } else {
-//     std::cout << "Unknown node type: " << type << std::endl;
-//   }
+  // if (type == "VisualShaderNodeInput") {
+  //   n = std::make_shared<VisualShaderNodeInput>();
+  // } else if (type == "VisualShaderNodeColorConstant") {
+  //   n = std::make_shared<VisualShaderNodeColorConstant>();
+  // } else if (type == "VisualShaderNodeBooleanConstant") {
+  //   n = std::make_shared<VisualShaderNodeBooleanConstant>();
+  // } else if (type == "VisualShaderNodeFloatConstant") {
+  //   n = std::make_shared<VisualShaderNodeFloatConstant>();
+  // } else if (type == "VisualShaderNodeIntConstant") {
+  //   n = std::make_shared<VisualShaderNodeIntConstant>();
+  // } else if (type == "VisualShaderNodeUIntConstant") {
+  //   n = std::make_shared<VisualShaderNodeUIntConstant>();
+  // } else if (type == "VisualShaderNodeVec2Constant") {
+  //   n = std::make_shared<VisualShaderNodeVec2Constant>();
+  // } else if (type == "VisualShaderNodeVec3Constant") {
+  //   n = std::make_shared<VisualShaderNodeVec3Constant>();
+  // } else if (type == "VisualShaderNodeVec4Constant") {
+  //   n = std::make_shared<VisualShaderNodeVec4Constant>();
+  // } else if (type == "VisualShaderNodeFloatFunc") {
+  //   n = std::make_shared<VisualShaderNodeFloatFunc>();
+  // } else if (type == "VisualShaderNodeIntFunc") {
+  //   n = std::make_shared<VisualShaderNodeIntFunc>();
+  // } else if (type == "VisualShaderNodeUIntFunc") {
+  //   n = std::make_shared<VisualShaderNodeUIntFunc>();
+  // } else if (type == "VisualShaderNodeDerivativeFunc") {
+  //   n = std::make_shared<VisualShaderNodeDerivativeFunc>();
+  // } else if (type == "VisualShaderNodeFloatOp") {
+  //   n = std::make_shared<VisualShaderNodeFloatOp>();
+  // } else if (type == "VisualShaderNodeIntOp") {
+  //   n = std::make_shared<VisualShaderNodeIntOp>();
+  // } else if (type == "VisualShaderNodeUIntOp") {
+  //   n = std::make_shared<VisualShaderNodeUIntOp>();
+  // } else if (type == "VisualShaderNodeValueNoise") {
+  //   n = std::make_shared<VisualShaderNodeValueNoise>();
+  // } else if (type == "VisualShaderNodePerlinNoise") {
+  //   n = std::make_shared<VisualShaderNodePerlinNoise>();
+  // } else if (type == "VisualShaderNodeVoronoiNoise") {
+  //   n = std::make_shared<VisualShaderNodeVoronoiNoise>();
+  // } else if (type == "VisualShaderNodeVectorFunc") {
+  //   n = std::make_shared<VisualShaderNodeVectorFunc>();
+  // } else if (type == "VisualShaderNodeVectorOp") {
+  //   n = std::make_shared<VisualShaderNodeVectorOp>();
+  // } else if (type == "VisualShaderNodeVectorCompose") {
+  //   n = std::make_shared<VisualShaderNodeVectorCompose>();
+  // } else if (type == "VisualShaderNodeVectorDecompose") {
+  //   n = std::make_shared<VisualShaderNodeVectorDecompose>();
+  // } else if (type == "VisualShaderNodeCompare") {
+  //   n = std::make_shared<VisualShaderNodeCompare>();
+  // } else if (type == "VisualShaderNodeIf") {
+  //   n = std::make_shared<VisualShaderNodeIf>();
+  // } else if (type == "VisualShaderNodeIs") {
+  //   n = std::make_shared<VisualShaderNodeIs>();
+  // } else if (type == "VisualShaderNodeSwitch") {
+  //   n = std::make_shared<VisualShaderNodeSwitch>();
+  // } else if (type == "VisualShaderNodeStep") {
+  //   n = std::make_shared<VisualShaderNodeStep>();
+  // } else if (type == "VisualShaderNodeSmoothStep") {
+  //   n = std::make_shared<VisualShaderNodeSmoothStep>();
+  // } else if (type == "VisualShaderNodeDotProduct") {
+  //   n = std::make_shared<VisualShaderNodeDotProduct>();
+  // } else {
+  //   std::cout << "Unknown node type: " << type << std::endl;
+  // }
 
-//   if (!n) {
-//     std::cout << "Failed to create node of type: " << type << std::endl;
-//     return false;
-//   }
+  // if (!n) {
+  //   std::cout << "Failed to create node of type: " << type << std::endl;
+  //   return false;
+  // }
 
-//   int n_id{vs->get_valid_node_id()};
+  // int n_id{vs->get_valid_node_id()};
+  int n_id{nodes_model->rowCount()}; // Get a valid node id from the model
 
-//   if (n_id == (int)VisualShader::NODE_ID_INVALID) {
-//     return false;
-//   }
+  // if (n_id == (int)VisualShader::NODE_ID_INVALID) {
+  //   return false;
+  // }
 
-//   return VisualShaderGraphicsScene::add_node(n_id, n, coordinate);
-// }
+  return VisualShaderGraphicsScene::add_node(n_id, coordinate);
+}
 
-// bool VisualShaderGraphicsScene::add_node(const int& n_id, const std::shared_ptr<VisualShaderNode>& n,
-//                                          const QPointF& coordinate) {
-//   // Make sure the node doesn't already exist, we don't want to overwrite a node.
-//   if (node_graphics_objects.find(n_id) != node_graphics_objects.end()) {
-//     return false;
-//   }
+bool VisualShaderGraphicsScene::add_node(const int& n_id, const QPointF& coordinate) {
+  // Make sure the node doesn't already exist, we don't want to overwrite a node.
+  if (node_graphics_objects.find(n_id) != node_graphics_objects.end()) {
+    return false;
+  }
 
-//   QList<QGraphicsView*> views{this->views()};
-//   if (views.isEmpty()) {
-//     std::cout << "No views available" << std::endl;
-//     return false;
-//   }
+  QList<QGraphicsView*> views{this->views()};
+  if (views.isEmpty()) {
+    std::cout << "No views available" << std::endl;
+    return false;
+  }
 
-//   // The output node cannot be removed or added by the user
-//   if (n_id >= (int)VisualShader::NODE_ID_OUTPUT + 1) {
-//     bool result{vs->add_node(n, {(float)coordinate.x(), (float)coordinate.y()}, n_id)};
+  // The output node cannot be removed or added by the user
+  // if (n_id >= (int)VisualShader::NODE_ID_OUTPUT + 1) {
+  //   bool result{vs->add_node(n, {(float)coordinate.x(), (float)coordinate.y()}, n_id)};
 
-//     if (!result) {
-//       return false;
-//     }
-//   }
+  //   if (!result) {
+  //     return false;
+  //   }
+  // }
 
-//   VisualShaderGraphicsView* view{dynamic_cast<VisualShaderGraphicsView*>(views.first())};
+  // The id of the row in the model is the same id of the node itself.
+  // Note that I used row analogy instead of column one and that's because we use a Vertical layout but use the row analogy.
+  // Set id, x and y coordinates of the node
+  nodes_model->insertRow(n_id);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(n_id), VisualShader::VisualShaderNode::kIdFieldNumber), n_id);
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(n_id), VisualShader::VisualShaderNode::kXCoordinateFieldNumber), coordinate.x());
+  nodes_model->SetData(FieldPath::Of<VisualShader::VisualShaderNode>(FieldPath::StartingAt(n_id), VisualShader::VisualShaderNode::kYCoordinateFieldNumber), coordinate.y());
 
-//   if (vs->get_node_coordinate(n_id).x < view->get_x() ||
-//       vs->get_node_coordinate(n_id).x > view->get_x() + view->get_width() ||
-//       vs->get_node_coordinate(n_id).y < view->get_y() ||
-//       vs->get_node_coordinate(n_id).y > view->get_y() + view->get_height()) {
-//     std::cout << "Node is out of view bounds" << std::endl;
-//   }
+  // Set the type of the node
+  // MessageModel* node_model = nodes_model->GetSubModel<MessageModel*>(n_id);
+  // const ProtoModel* type_model = node_model->GetSubModel(FieldPath::Of<VisualShader::VisualShaderNode>(VisualShader::VisualShaderNode::kFloatConstantFieldNumber));
+  // ProtoModel* type_model1 = const_cast<ProtoModel*>(type_model);
+  // type_model1->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber), 3.0);
 
-//   VisualShaderNodeGraphicsObject* n_o{new VisualShaderNodeGraphicsObject(n_id, coordinate, n)};
+  // Get the value back
+  // QVariant v = type_model1->Data(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber));
 
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::node_moved, this, &VisualShaderGraphicsScene::on_node_moved);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_pressed, this,
-//                    &VisualShaderGraphicsScene::on_port_pressed);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_dragged, this,
-//                    &VisualShaderGraphicsScene::on_port_dragged);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_dropped, this,
-//                    &VisualShaderGraphicsScene::on_port_dropped);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_pressed, this,
-//                    &VisualShaderGraphicsScene::on_port_pressed);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_dragged, this,
-//                    &VisualShaderGraphicsScene::on_port_dragged);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_dropped, this,
-//                    &VisualShaderGraphicsScene::on_port_dropped);
+  // if (v.isValid()) {
+  //   std::cout << "Added node 1: " << v.toDouble() << std::endl;
+  // } else {
+  //   std::cout << "Added node 1: Invalid" << std::endl;
+  // }
 
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::scene_update_requested, this,
-//                    &VisualShaderGraphicsScene::on_scene_update_requested);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_remove_requested, this,
-//                    &VisualShaderGraphicsScene::on_in_port_remove_requested);
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_remove_requested, this,
-//                    &VisualShaderGraphicsScene::on_out_port_remove_requested);
+  // const Descriptor* desc = node_model->GetBuffer()->GetDescriptor();
 
-//   if (n_id != (int)VisualShader::NODE_ID_OUTPUT) {
-//     VisualShaderNodeEmbedWidget* embed_widget{new VisualShaderNodeEmbedWidget(n)};
-//     QGraphicsProxyWidget* embed_widget_proxy{new QGraphicsProxyWidget(n_o)};
-//     embed_widget_proxy->setWidget(embed_widget);
-//     n_o->set_embed_widget(embed_widget);
-//     QObject::connect(embed_widget, &VisualShaderNodeEmbedWidget::shader_preview_update_requested, this,
-//                      &VisualShaderGraphicsScene::on_update_shader_previewer_widgets_requested);
+  // std::cout << "Descriptor name: " << desc->name() << std::endl;
+  // std::cout << "Descriptor full name: " << desc->full_name() << std::endl;
 
-//     QObject::connect(embed_widget, &VisualShaderNodeEmbedWidget::node_update_requested, n_o,
-//                      &VisualShaderNodeGraphicsObject::on_node_update_requested);
+  // const Reflection* refl = node_model->GetBuffer()->GetReflection();
 
-//     // Send the shader previewer widget
-//     embed_widget->set_shader_previewer_widget(n_o->get_shader_previewer_widget());
-//   }
+  // const OneofDescriptor* oneof_desc = desc->FindOneofByName("node_type");
 
-//   if (ShaderPreviewerWidget * spw{n_o->get_shader_previewer_widget()}) {
-//     QObject::connect(spw, &ShaderPreviewerWidget::scene_update_requested, this,
-//                      &VisualShaderGraphicsScene::on_scene_update_requested);
-//   }
+  // const FieldDescriptor* field_desc = desc->FindFieldByName("float_constant");
 
-//   QObject::connect(n_o, &VisualShaderNodeGraphicsObject::node_deleted, this,
-//                    &VisualShaderGraphicsScene::on_node_deleted);
+  // if (!field_desc || !oneof_desc) {
+  //   std::cout << "Field or oneof descriptor not found" << std::endl;
+  //   return false;
+  // }
 
-//   node_graphics_objects[n_id] = n_o;
+  // MessageModel* float_constant_message_model = 
+  //         new MessageModel(node_model, refl->MutableMessage(node_model->GetBuffer(), field_desc), VisualShader::VisualShaderNode::kFloatConstantFieldNumber - 1);
 
-//   addItem(n_o);
+  // float_constant_message_model->SetData(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber), 3.0);
 
-//   return true;
-// }
+  // QVariant v = float_constant_message_model->Data(FieldPath::Of<VisualShaderNodeFloatConstant>(VisualShaderNodeFloatConstant::kValueFieldNumber));
+
+  // if (v.isValid()) {
+  //   std::cout << "Added node 1: " << v.toDouble() << std::endl;
+  // } else {
+  //   std::cout << "Added node 1: Invalid" << std::endl;
+  // }
+
+  // int node_type_case = node_model->OneOfType("node_type");
+
+  // switch ((VisualShader::VisualShaderNode::NodeTypeCase)node_type_case) {
+  //   case VisualShader::VisualShaderNode::NODE_TYPE_NOT_SET:
+  //     std::cout << "Node type not set" << std::endl;
+  //     break;
+  //   case VisualShader::VisualShaderNode::kFloatConstant:
+  //     std::cout << "Float constant" << std::endl;
+  //     break;
+  //   case VisualShader::VisualShaderNode::kIntConstant:
+  //     std::cout << "Int constant" << std::endl;
+  //     break;
+  //   default:
+  //     break;
+  // }
+
+  // VisualShaderGraphicsView* view{dynamic_cast<VisualShaderGraphicsView*>(views.first())};
+
+  // if (vs->get_node_coordinate(n_id).x < view->get_x() ||
+  //     vs->get_node_coordinate(n_id).x > view->get_x() + view->get_width() ||
+  //     vs->get_node_coordinate(n_id).y < view->get_y() ||
+  //     vs->get_node_coordinate(n_id).y > view->get_y() + view->get_height()) {
+  //   std::cout << "Node is out of view bounds" << std::endl;
+  // }
+
+  // VisualShaderNodeGraphicsObject* n_o{new VisualShaderNodeGraphicsObject(n_id, coordinate, n)};
+
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::node_moved, this, &VisualShaderGraphicsScene::on_node_moved);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_pressed, this,
+  //                  &VisualShaderGraphicsScene::on_port_pressed);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_dragged, this,
+  //                  &VisualShaderGraphicsScene::on_port_dragged);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_dropped, this,
+  //                  &VisualShaderGraphicsScene::on_port_dropped);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_pressed, this,
+  //                  &VisualShaderGraphicsScene::on_port_pressed);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_dragged, this,
+  //                  &VisualShaderGraphicsScene::on_port_dragged);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_dropped, this,
+  //                  &VisualShaderGraphicsScene::on_port_dropped);
+
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::scene_update_requested, this,
+  //                  &VisualShaderGraphicsScene::on_scene_update_requested);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::in_port_remove_requested, this,
+  //                  &VisualShaderGraphicsScene::on_in_port_remove_requested);
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::out_port_remove_requested, this,
+  //                  &VisualShaderGraphicsScene::on_out_port_remove_requested);
+
+  // if (n_id != (int)VisualShader::NODE_ID_OUTPUT) {
+  //   VisualShaderNodeEmbedWidget* embed_widget{new VisualShaderNodeEmbedWidget(n)};
+  //   QGraphicsProxyWidget* embed_widget_proxy{new QGraphicsProxyWidget(n_o)};
+  //   embed_widget_proxy->setWidget(embed_widget);
+  //   n_o->set_embed_widget(embed_widget);
+  //   QObject::connect(embed_widget, &VisualShaderNodeEmbedWidget::shader_preview_update_requested, this,
+  //                    &VisualShaderGraphicsScene::on_update_shader_previewer_widgets_requested);
+
+  //   QObject::connect(embed_widget, &VisualShaderNodeEmbedWidget::node_update_requested, n_o,
+  //                    &VisualShaderNodeGraphicsObject::on_node_update_requested);
+
+  //   // Send the shader previewer widget
+  //   embed_widget->set_shader_previewer_widget(n_o->get_shader_previewer_widget());
+  // }
+
+  // if (ShaderPreviewerWidget * spw{n_o->get_shader_previewer_widget()}) {
+  //   QObject::connect(spw, &ShaderPreviewerWidget::scene_update_requested, this,
+  //                    &VisualShaderGraphicsScene::on_scene_update_requested);
+  // }
+
+  // QObject::connect(n_o, &VisualShaderNodeGraphicsObject::node_deleted, this,
+  //                  &VisualShaderGraphicsScene::on_node_deleted);
+
+  // node_graphics_objects[n_id] = n_o;
+
+  // addItem(n_o);
+
+  return true;
+}
 
 // bool VisualShaderGraphicsScene::delete_node(const int& n_id) {
 //   const std::shared_ptr<VisualShaderNode> n{vs->get_node(n_id)};
